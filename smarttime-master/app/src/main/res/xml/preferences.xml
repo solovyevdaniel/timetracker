@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Notification">
+
+        <CheckBoxPreference
+            android:key="next_screen_checkbox_preference"
+            android:title="Show notification" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Data">
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

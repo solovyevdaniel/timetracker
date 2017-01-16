@@ -1,0 +1,92 @@
+package com.SYKIO.developer.apptracker;
+
+import android.content.Context;
+import android.support.v4.content.AsyncTaskLoader;
+import android.util.Log;
+
+import com.SYKIO.developer.apptracker.database.dao.ApplicationDAO;
+import com.SYKIO.developer.apptracker.database.dao.entity.Application;
+import com.SYKIO.developer.apptracker.models.ApplicationUsed;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+public class ApplicationsUsedLoader extends AsyncTaskLoader<List<ApplicationUsed>> {
+
+    private static final String TAG = "ApplicationsUsedLoader";
+
+    private List<ApplicationUsed> data;
+
+    public ApplicationsUsedLoader(Context context) {
+        super(context);
+    }
+
+    @Override
+    public List<ApplicationUsed> loadInBackground() {
+        Log.d(TAG, "loadInBackground: ");
+        ApplicationDAO dao = new ApplicationDAO(getContext());
+        ArrayList<ApplicationUsed> list = new ArrayList<>();
+        ArrayList<Application> retrievedApps;
+        try {
+            retrievedApps = dao.retrieveAll();
+            Log.d(TAG, "loadInBackground: db retrieved data size = " + retrievedApps.size());
+        } finally {
+            dao.close();
+        }
+        for (int i = retrievedApps.size() - 1; i >= 0; i--) {
+            Application item = retrievedApps.get(i);
+
+            ApplicationUsed instance = new ApplicationUsed();
+            instance.setId(item.getId());
+            instance.setAppName(item.getAppPackage());
+            instance.setSpendTime(item.getSpendTime());
+            instance.setDate(item.getDatetime());
+
+            list.add(instance);
+        }
+
+        Log.d(TAG, "loadInBackground: list will be returned with size = " + list.size());
+        return list;
+    }
+
+    @Override
+    protected void onStartLoading() {
+        Log.d(TAG, "onStartLoading: ");
+        if (data != null) {
+            Log.d(TAG, "onStartLoading: data != null");
+            deliverResult(data);
+        } else {
+            Log.d(TAG, "onStartLoading: forceLoad()");
+            forceLoad();
+        }
+    }
+
+    @Override
+    public void deliverResult(List<ApplicationUsed> data) {
+        Log.d(TAG, "deliverResult: ");
+        this.data = data;
+
+        if (isStarted()) {
+            Log.d(TAG, "deliverResult: super.deliverResult(data)");
+            super.deliverResult(data);
+        }
+    }
+
+    @Override
+    protected void onStopLoading() {
+        Log.d(TAG, "onStopLoading: ");
+        cancelLoad();
+    }
+
+    @Override
+    protected void onReset() {
+        Log.d(TAG, "onReset: ");
+        onStopLoading();
+        if (data != null) {
+            Log.d(TAG, "onReset: data != null");
+            data = null;
+        }
+    }
+}

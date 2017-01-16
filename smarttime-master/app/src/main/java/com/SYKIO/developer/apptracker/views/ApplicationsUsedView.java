@@ -1,0 +1,8 @@
+package com.SYKIO.developer.apptracker.views;
+
+public interface ApplicationsUsedView {
+
+    void setApplicationName(String name);
+
+    void setTime(String time);
+}
